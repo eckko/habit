@@ -1,0 +1,43 @@
+<!doctype html>
+<!--
+  The hub page of this subject site. It holds no UI code and never changes:
+  the loader at the end reads the one-line file .grouprc ("3" = the
+  newest 3.x.x release of https://github.com/eckko/group-ui) and loads the
+  whole UI (sign-in screen, shelf, gear, icons) from jsDelivr. A new major
+  version is adopted by editing .grouprc. Change the UI in that repo,
+  never here. Names no book and no subject: the title comes, after sign-in,
+  from the encrypted index.enc.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Books</title>
+</head>
+<body>
+<noscript>This page needs JavaScript.</noscript>
+<script>
+(function () {
+  "use strict";
+  function fail(text) {
+    var p = document.createElement("p"); p.textContent = text;
+    document.body.appendChild(p);
+  }
+  fetch(".grouprc", { cache: "no-cache" }).then(function (r) {
+    if (!r.ok) { throw new Error(".grouprc: HTTP " + r.status); }
+    return r.text();
+  }).then(function (text) {
+    var v = text.split("\n")[0].trim();
+    if (!/^[0-9]+(\.[0-9]+){0,2}$/.test(v)) {
+      throw new Error('.grouprc needs a version such as "3"');
+    }
+    var s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/gh/eckko/group-ui@" + v +
+      "/js/hub.js";
+    s.onerror = function () { fail("Could not load the hub UI (" + v + ")."); };
+    document.body.appendChild(s);
+  }).catch(function (e) { fail("Could not start: " + e.message); });
+})();
+</script>
+</body>
+</html>

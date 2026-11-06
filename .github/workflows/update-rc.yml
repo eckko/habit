@@ -1,0 +1,89 @@
+# Opens a pull request that sets .itemrc (an item-ui release, exact tag) or
+# .grouprc (a group-ui release: only its major, "3" follows the newest 3.x.x).
+# Started by the release workflows of eckko/item-ui and eckko/group-ui
+# (repository_dispatch "item-ui-release" / "group-ui-release", needs their
+# secret TEMPLATE_UPDATE_TOKEN) or by hand. Nothing changes until you merge
+# the pull request. Needs Settings > Actions > General > "Allow GitHub Actions
+# to create and approve pull requests".
+name: Update .itemrc and .grouprc
+
+on:
+  repository_dispatch:
+    types: [item-ui-release, group-ui-release]
+  workflow_dispatch:
+    inputs:
+      file:
+        description: Which file to update
+        required: true
+        type: choice
+        options: [".itemrc", ".grouprc"]
+      version:
+        description: Exact release tag, for example 3.4.0
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-version-files
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the default branch
+        uses: actions/checkout@v4
+
+      - name: Work out the new values
+        id: values
+        env:
+          EVENT: ${{ github.event_name == 'repository_dispatch' && github.event.action || 'manual' }}
+          SENT: ${{ github.event.client_payload.version }}
+          MANUAL: ${{ inputs.version }}
+          KIND: ${{ inputs.file == '.grouprc' && 'group' || 'item' }}
+        run: |
+          set -euo pipefail
+          case "$EVENT" in
+            item-ui-release|manual) kind=item ;;
+            group-ui-release) kind=group ;;
+            *) echo "::error::Unknown event $EVENT"; exit 1 ;;
+          esac
+          [ "$EVENT" = manual ] && kind="$KIND"
+          ver="${SENT:-${MANUAL:-}}"
+          [[ "$ver" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::The version must be an exact tag like 3.4.0."; exit 1; }
+          if [ "$kind" = item ]; then
+            file=.itemrc; value="$ver"       # the item UI tag: always exact
+          else
+            file=.grouprc; value="${ver%%.*}" # the hub follows the newest of a major
+          fi
+          current=$(head -n1 "$file" 2>/dev/null | tr -d '[:space:]' || true)
+          if [ "$current" = "$value" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"; echo "$file already has $value."; exit 0
+          fi
+          printf '%s\n' "$value" > "$file"
+          {
+            echo "changed=true"
+            echo "title=Set $file to $value"
+            echo "branch=chore/${file#.}-$value"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Open a pull request
+        if: steps.values.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITLE: ${{ steps.values.outputs.title }}
+          BRANCH: ${{ steps.values.outputs.branch }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$BRANCH"
+          git add .itemrc .grouprc
+          git commit -q -m "$TITLE"
+          git push -q origin "$BRANCH"
+          gh pr create --base "$(git rev-parse --abbrev-ref origin/HEAD | sed 's#origin/##')" --head "$BRANCH" \
+            --title "$TITLE" --body "Opened by the update workflow after a release. Merge it to adopt the new version." \
+            --assignee "$GITHUB_REPOSITORY_OWNER"

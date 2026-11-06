@@ -11,4 +11,4 @@ https://github.com/eckko/group-ui at the version in `.grouprc` (`3` = newest
 exact tag in `.itemrc`. `build_pool.py` (item-ui, `tools/site/`) writes
 `.itemrc`, `index.enc`, `r.html`, `q.html` and the pool when a private
 book repo (made from item-template) publishes. The release actions of group-ui
-and item-ui may update the two version files. See README.md.
+and item-ui may update the two version files. See README.md

@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Made by tools/make_subject_pages.py (item-ui 1.0.0).
+<!-- Made by tools/make_subject_pages.py (item-ui 1.0.1).
      Loads everything from the CDN at that tag; to upgrade, run it again. -->
 <html lang="en">
 <head>
@@ -8,13 +8,13 @@
 <title>Loading</title>
 <meta name="pool-index" content="index.enc">
 <script>window.RecallQuizEncrypted = { questions: "quiz/questions.enc" };</script>
-<script src="https://cdn.jsdelivr.net/gh/eckko/item-ui@1.0.0/js/unlock.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/eckko/item-ui@1.0.0/js/pool-files.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/eckko/item-ui@1.0.1/js/unlock.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/eckko/item-ui@1.0.1/js/pool-files.js"></script>
 </head>
 <body>
 <script>
 SubjectUnlock.ready().then(function start() {
-  return SubjectUnlock.loadScript("https://cdn.jsdelivr.net/gh/eckko/item-ui@1.0.0/js/boot.js");
+  return SubjectUnlock.loadScript("https://cdn.jsdelivr.net/gh/eckko/item-ui@1.0.1/js/boot.js");
 }).catch(showProblem);
 function showProblem(problem) {
   var note = document.createElement("p");

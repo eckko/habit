@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Made by tools/make_subject_pages.py (item-ui 1.0.2).
+<!-- Made by tools/make_subject_pages.py (item-ui 1.0.3).
      Loads everything from the CDN at that tag; to upgrade, run it again. -->
 <html lang="en">
 <head>
@@ -7,14 +7,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Loading</title>
 <meta name="pool-index" content="index.enc">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/eckko/item-ui@1.0.2/reader/style.css">
-<script src="https://cdn.jsdelivr.net/gh/eckko/item-ui@1.0.2/js/unlock.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/eckko/item-ui@1.0.2/js/pool-files.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/eckko/item-ui@1.0.3/reader/style.css">
+<script src="https://cdn.jsdelivr.net/gh/eckko/item-ui@1.0.3/js/unlock.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/eckko/item-ui@1.0.3/js/pool-files.js"></script>
 </head>
 <body>
 <script>
 SubjectUnlock.ready().then(function start() {
-  return SubjectUnlock.loadScript("https://cdn.jsdelivr.net/gh/eckko/item-ui@1.0.2/reader/app.js");
+  return SubjectUnlock.loadScript("https://cdn.jsdelivr.net/gh/eckko/item-ui@1.0.3/reader/app.js");
 }).catch(showProblem);
 function showProblem(problem) {
   var note = document.createElement("p");
